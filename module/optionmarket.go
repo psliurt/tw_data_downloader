@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"tw_data_downloader/env"
 
 	"github.com/chromedp/chromedp"
 	"github.com/shopspring/decimal"
@@ -84,7 +85,7 @@ func (vc *TwOptionCrawler) download() []string {
 
 			zipFileName := vc.getZipFileName(dateStr)
 			if strings.Contains(pubDesc, "下午") {
-				if _, err := os.Stat(fmt.Sprint(`C:\Users\user\Downloads\`, zipFileName)); errors.Is(err, os.ErrNotExist) {
+				if _, err := os.Stat(fmt.Sprint(env.Instance().BrowserDownloadPath, zipFileName)); errors.Is(err, os.ErrNotExist) {
 					chromedp.Run(vc.chromedpContext,
 						chromedp.Click(fmt.Sprint(`#printhere > table:nth-child(4) > tbody > tr:nth-child(`, row, `) > td:nth-child(4) > input`), chromedp.ByQuery),
 						chromedp.Sleep(3*time.Second),
@@ -114,10 +115,10 @@ func (vc *TwOptionCrawler) moveZipToTmpFolder(dateList []string) []string {
 
 		zipFileName := vc.getZipFileName(d)
 
-		if _, err := os.Stat(fmt.Sprint(`./tmpzip/`, zipFileName)); errors.Is(err, os.ErrNotExist) {
-			source, err := os.Open(fmt.Sprint(`C:\Users\user\Downloads\`, zipFileName))
+		if _, err := os.Stat(fmt.Sprint(env.Instance().ZipStorePath, zipFileName)); errors.Is(err, os.ErrNotExist) {
+			source, err := os.Open(fmt.Sprint(env.Instance().BrowserDownloadPath, zipFileName))
 			handleError(err)
-			dest, err := os.Create(fmt.Sprint(`./tmpzip/`, zipFileName))
+			dest, err := os.Create(fmt.Sprint(env.Instance().ZipStorePath, zipFileName))
 			handleError(err)
 			_, err = io.Copy(dest, source)
 			handleError(err)
@@ -134,14 +135,14 @@ func (vc *TwOptionCrawler) unzipAndCopy(zipFileList []string) []string {
 	csvFileList := make([]string, 0)
 	for _, z := range zipFileList {
 		//fmt.Println("zip file=>", z)
-		archive, err := zip.OpenReader(fmt.Sprint(`./tmpzip/`, z))
+		archive, err := zip.OpenReader(fmt.Sprint(env.Instance().ZipStorePath, z))
 		handleError(err)
 		for _, f := range archive.File {
 			fileInArchive, err := f.Open()
 			handleError(err)
 
-			if _, err := os.Stat(fmt.Sprint(`./tmpcsv/`, f.Name)); errors.Is(err, os.ErrNotExist) {
-				dest, err := os.Create(fmt.Sprint(`./tmpcsv/`, f.Name))
+			if _, err := os.Stat(fmt.Sprint(env.Instance().CsvStorePath, f.Name)); errors.Is(err, os.ErrNotExist) {
+				dest, err := os.Create(fmt.Sprint(env.Instance().CsvStorePath, f.Name))
 				handleError(err)
 				_, err = io.Copy(dest, fileInArchive)
 				handleError(err)
@@ -160,7 +161,7 @@ func (vc *TwOptionCrawler) unzipAndCopy(zipFileList []string) []string {
 
 func (vc *TwOptionCrawler) readCsvAndTransformToKLines(csvFileList []string) {
 	for _, csv := range csvFileList {
-		f, err := os.Open(fmt.Sprint(`./tmpcsv/`, csv))
+		f, err := os.Open(fmt.Sprint(env.Instance().CsvStorePath, csv))
 		handleError(err)
 		b := new(strings.Builder)
 		io.Copy(b, f)
@@ -209,10 +210,10 @@ func (vc *TwOptionCrawler) readCsvAndTransformToKLines(csvFileList []string) {
 			dateSs := strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(csv, "Daily", ""), ".csv", ""), "_", "")
 			fileName := fmt.Sprint(kk, "_", dateSs, "_1min.txt")
 
-			if _, err := os.Stat(fmt.Sprint(`./klines/`, fileName)); errors.Is(err, os.ErrNotExist) {
+			if _, err := os.Stat(fmt.Sprint(env.Instance().KLineStorePath, fileName)); errors.Is(err, os.ErrNotExist) {
 				buf := vc.transformToKLinesFileBytes(vv)
 
-				dest, err := os.Create(fmt.Sprint(`./klines/`, fileName))
+				dest, err := os.Create(fmt.Sprint(env.Instance().KLineStorePath, fileName))
 				handleError(err)
 				_, err = io.Copy(dest, strings.NewReader(buf.String()))
 				handleError(err)

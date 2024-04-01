@@ -1,3 +1,7 @@
 {
-    "welcome":"tw_data_downloader-v0.0.1"
+    "welcome":"tw_data_downloader-v0.0.1",
+    "browser_download_path":"C:\\Users\\user\\Downloads\\",
+    "zip_store_path":"./tmpzip/",
+    "csv_store_path":"./tmpcsv/",
+    "kline_store_path":"./klines/"
 }

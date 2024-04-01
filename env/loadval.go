@@ -49,6 +49,22 @@ func loadServicePort() int {
 	return viper.GetInt("serviceport")
 }
 
+func loadBrowserDownloadPath() string {
+	return viper.GetString("browser_download_path")
+}
+
+func loadZipStorePath() string {
+	return viper.GetString("zip_store_path")
+}
+
+func loadCsvStorePath() string {
+	return viper.GetString("csv_store_path")
+}
+
+func loadKLineStorePath() string {
+	return viper.GetString("kline_store_path")
+}
+
 type DecimalCodec struct{}
 
 func (dc *DecimalCodec) EncodeValue(ectx bsoncodec.EncodeContext, vw bsonrw.ValueWriter, val reflect.Value) error {

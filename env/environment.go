@@ -10,7 +10,11 @@ var envInstance *Environment
 var createEnvironmentOnce sync.Once
 
 type Environment struct {
-	ServicePort int
+	ServicePort         int
+	BrowserDownloadPath string
+	ZipStorePath        string
+	CsvStorePath        string
+	KLineStorePath      string
 }
 
 func Initialize() {
@@ -27,7 +31,11 @@ func Instance() *Environment {
 func createEnvironment() *Environment {
 	setUpZap()
 	return &Environment{
-		ServicePort: loadServicePort(),
+		BrowserDownloadPath: loadBrowserDownloadPath(),
+		ZipStorePath:        loadZipStorePath(),
+		CsvStorePath:        loadCsvStorePath(),
+		KLineStorePath:      loadKLineStorePath(),
+		ServicePort:         loadServicePort(),
 	}
 }
 
